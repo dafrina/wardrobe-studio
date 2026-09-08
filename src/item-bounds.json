@@ -1,0 +1,56 @@
+{
+  "polo": {
+    "x": 326,
+    "y": 245,
+    "width": 382,
+    "height": 428
+  },
+  "socks-sport": {
+    "x": 373,
+    "y": 1155,
+    "width": 296,
+    "height": 278
+  },
+  "sneakers": {
+    "x": 361,
+    "y": 1303,
+    "width": 316,
+    "height": 136
+  },
+  "shirt": {
+    "x": 309,
+    "y": 237,
+    "width": 414,
+    "height": 482
+  },
+  "socks-low": {
+    "x": 373,
+    "y": 1291,
+    "width": 297,
+    "height": 141
+  },
+  "jacket": {
+    "x": 299,
+    "y": 227,
+    "width": 430,
+    "height": 488
+  },
+  "loafers": {
+    "x": 363,
+    "y": 1303,
+    "width": 311,
+    "height": 137
+  },
+  "trousers": {
+    "x": 376,
+    "y": 595,
+    "width": 281,
+    "height": 722
+  },
+  "belt": {
+    "x": 399,
+    "y": 597,
+    "width": 234,
+    "height": 30
+  }
+}
