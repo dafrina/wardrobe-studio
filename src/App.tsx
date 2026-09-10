@@ -242,7 +242,11 @@ export function App() {
   return (
     <div className="app-shell">
       <header className="app-header">
-        <a className="brand" href="/" aria-label="Wardrobe Studio home">
+        <a
+          className="brand"
+          href={import.meta.env.BASE_URL}
+          aria-label="Wardrobe Studio home"
+        >
           <span className="brand-icon">
             <ShirtIcon size={21} strokeWidth={1.5} />
           </span>

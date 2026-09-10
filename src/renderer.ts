@@ -46,25 +46,27 @@ async function bitmap(url: string, bounds?: Bounds) {
     ? createImageBitmap(blob, bounds.x, bounds.y, bounds.width, bounds.height)
     : createImageBitmap(blob);
 }
+const assetUrl = (filename: string) =>
+  `${import.meta.env.BASE_URL}assets/${filename}`;
 let imageRequest: Promise<WardrobeImages> | undefined;
 export function loadWardrobe(): Promise<WardrobeImages> {
   if (!imageRequest)
     imageRequest = (async () => {
-      const base = await bitmap('/assets/mannequin.png');
+      const base = await bitmap(assetUrl('mannequin.png'));
       const entries = await Promise.all(
         readyItemIds().map(async (id) => {
           const bounds = ITEMS[id].bounds;
           const [first, second] = assetFiles(id);
           if (isWatch(id)) {
             const [image, thumbnail] = await Promise.all([
-              bitmap(`/assets/${first}`, bounds),
-              bitmap(`/assets/${second}`),
+              bitmap(assetUrl(first), bounds),
+              bitmap(assetUrl(second)),
             ]);
             return [id, { image, thumbnail, bounds }] as const;
           }
           const [mask, shading] = await Promise.all([
-            bitmap(`/assets/${first}`, bounds),
-            bitmap(`/assets/${second}`, bounds),
+            bitmap(assetUrl(first), bounds),
+            bitmap(assetUrl(second), bounds),
           ]);
           return [id, { mask, shading, bounds }] as const;
         }),

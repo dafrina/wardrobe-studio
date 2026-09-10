@@ -55,3 +55,7 @@ The final shirt and polo cleanup is in `puppet-assets-v7/collars`, including the
 The five additions from `Ggg.zip` are preserved in `puppet-assets-v8`: original reference images, five built-in image-generation masters and final prompts, `process-assets.cjs` for chroma extraction/registration and mask/shading separation, and actual-renderer review sheets. The check trousers reuse the approved full-length silhouette and waistband; the pattern is registered into that shape. See that directory's README for the source-to-item mapping.
 
 The app runs entirely in the browser. Clothing selections last for the current session; no account data or outfit data is stored on a server.
+
+## GitHub Pages
+
+The repository includes `.github/workflows/pages.yml`. It runs the tests and lint checks, builds the Vite app with the `/wardrobe-studio/` base path, and deploys `dist` to GitHub Pages whenever `main` changes. In the repository's **Settings → Pages**, choose **GitHub Actions** as the source. The published address is `https://dafrina.github.io/wardrobe-studio/`.
