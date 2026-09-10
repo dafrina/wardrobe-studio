@@ -1,9 +1,9 @@
 {
   "polo": {
     "x": 326,
-    "y": 245,
+    "y": 232,
     "width": 382,
-    "height": 428
+    "height": 441
   },
   "socks-sport": {
     "x": 373,
@@ -19,9 +19,9 @@
   },
   "shirt": {
     "x": 309,
-    "y": 237,
+    "y": 235,
     "width": 414,
-    "height": 482
+    "height": 484
   },
   "socks-low": {
     "x": 373,
@@ -52,5 +52,107 @@
     "y": 597,
     "width": 234,
     "height": 30
+  },
+  "trousers-long": {
+    "x": 376,
+    "y": 595,
+    "width": 281,
+    "height": 761
+  },
+  "watch-rectangular-brown": {
+    "x": 668,
+    "y": 691,
+    "width": 45,
+    "height": 27
+  },
+  "watch-two-tone": {
+    "x": 667,
+    "y": 689,
+    "width": 46,
+    "height": 30
+  },
+  "watch-green-steel": {
+    "x": 667,
+    "y": 689,
+    "width": 46,
+    "height": 31
+  },
+  "watch-gold-leather": {
+    "x": 667,
+    "y": 689,
+    "width": 46,
+    "height": 30
+  },
+  "watch-blue-chrono": {
+    "x": 667,
+    "y": 688,
+    "width": 46,
+    "height": 33
+  },
+  "watch-navy-field": {
+    "x": 667,
+    "y": 689,
+    "width": 46,
+    "height": 30
+  },
+  "watch-black-steel": {
+    "x": 666,
+    "y": 689,
+    "width": 47,
+    "height": 31
+  },
+  "watch-white-steel": {
+    "x": 668,
+    "y": 689,
+    "width": 45,
+    "height": 31
+  },
+  "trousers-linen": {
+    "x": 369,
+    "y": 595,
+    "width": 292,
+    "height": 762
+  },
+  "sweater-troyer": {
+    "x": 303,
+    "y": 227,
+    "width": 422,
+    "height": 481
+  },
+  "sweater-crew": {
+    "x": 306,
+    "y": 243,
+    "width": 417,
+    "height": 465
+  },
+  "jacket-polo-beige": {
+    "x": 299,
+    "y": 230,
+    "width": 433,
+    "height": 481
+  },
+  "jacket-polo-navy": {
+    "x": 299,
+    "y": 230,
+    "width": 433,
+    "height": 481
+  },
+  "jacket-quilted": {
+    "x": 299,
+    "y": 225,
+    "width": 434,
+    "height": 489
+  },
+  "coat-burberry": {
+    "x": 299,
+    "y": 233,
+    "width": 433,
+    "height": 823
+  },
+  "trousers-check": {
+    "x": 376,
+    "y": 595,
+    "width": 281,
+    "height": 761
   }
 }

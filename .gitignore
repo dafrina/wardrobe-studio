@@ -37,3 +37,7 @@ next-env.d.ts
 /outputs/
 /work/
 *.tsbuildinfo
+
+# local clothing reference archive and download metadata
+/Ggg.zip
+*Zone.Identifier

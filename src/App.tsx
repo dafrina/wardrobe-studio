@@ -17,6 +17,8 @@ import {
   describeOutfit,
   getColor,
   initialOutfit,
+  isItemReady,
+  readyItemIds,
   outfitReducer,
 } from './wardrobe';
 import type { Action, ColorId, ItemId, Outfit, SectionId } from './wardrobe';
@@ -35,6 +37,12 @@ function ClothingThumbnail({
   useEffect(() => {
     if (renderer && ref.current) renderer.thumbnail(ref.current, item, color);
   }, [renderer, item, color]);
+  if (!isItemReady(item))
+    return (
+      <span className="pending-thumbnail" aria-hidden="true">
+        Image pending
+      </span>
+    );
   return (
     <canvas
       ref={ref}
@@ -61,15 +69,23 @@ function WardrobeSection({
     currentColor = getColor(choice.color);
   return (
     <section
-      className={`wardrobe-section ${!choice.visible ? 'is-hidden' : ''}`}
+      className={`wardrobe-section ${!choice.visible ? 'is-hidden' : ''} ${!section.items.some(isItemReady) ? 'images-pending' : ''}`}
       aria-labelledby={`${section.id}-heading`}
+      data-section={section.id}
     >
       <div className="section-heading">
         <h3 id={`${section.id}-heading`}>{section.label}</h3>
         <div className="visibility-control">
-          <span aria-hidden="true">{choice.visible ? 'Shown' : 'Hidden'}</span>
+          <span aria-hidden="true">
+            {!isItemReady(choice.item)
+              ? 'Pending'
+              : choice.visible
+                ? 'Shown'
+                : 'Hidden'}
+          </span>
           <Switch
-            checked={choice.visible}
+            checked={choice.visible && isItemReady(choice.item)}
+            disabled={!isItemReady(choice.item)}
             onCheckedChange={(visible) =>
               dispatch({ type: 'visibility', section: section.id, visible })
             }
@@ -89,27 +105,32 @@ function WardrobeSection({
             })
           }
           aria-label={`${section.label} type`}
-          className="clothing-options"
+          className={`clothing-options ${section.id === 'watch' ? 'watch-options' : ''} ${section.id === 'jacket' ? 'jacket-options' : ''}`}
         >
           {section.items.map((item) => (
             <label
               key={item}
-              className={`clothing-choice ${choice.item === item ? 'selected' : ''}`}
+              className={`clothing-choice ${choice.item === item && isItemReady(item) ? 'selected' : ''} ${!isItemReady(item) ? 'is-pending' : ''}`}
               htmlFor={`item-${item}`}
             >
               <RadioGroupItem
                 id={`item-${item}`}
                 value={item}
+                disabled={!isItemReady(item)}
                 aria-label={ITEMS[item].label}
                 className="item-radio"
               />
               <ClothingThumbnail
                 renderer={renderer}
                 item={item}
-                color={choice.color}
+                color={
+                  choice.item === item
+                    ? choice.color
+                    : (ITEMS[item].defaultColor ?? choice.color)
+                }
               />
               <span className="choice-name">{ITEMS[item].label}</span>
-              {choice.item === item && (
+              {choice.item === item && isItemReady(item) && (
                 <Check
                   className="choice-check"
                   size={12}
@@ -132,33 +153,37 @@ function WardrobeSection({
             />
           </div>
         )}
-        <div className="color-heading">
-          <span>Color</span>
-          <span className="color-name">{currentColor.label}</span>
-        </div>
-        <RadioGroup
-          value={choice.color}
-          onValueChange={(value) =>
-            dispatch({
-              type: 'color',
-              section: section.id,
-              color: value as ColorId,
-            })
-          }
-          aria-label={`${section.label} color`}
-          className="color-options"
-        >
-          {PALETTE.map((color) => (
-            <RadioGroupItem
-              key={color.id}
-              value={color.id}
-              aria-label={color.label}
-              title={color.label}
-              style={{ '--swatch': color.hex } as React.CSSProperties}
-              className="color-option"
-            />
-          ))}
-        </RadioGroup>
+        {section.id !== 'watch' && (
+          <>
+            <div className="color-heading">
+              <span>Color</span>
+              <span className="color-name">{currentColor.label}</span>
+            </div>
+            <RadioGroup
+              value={choice.color}
+              onValueChange={(value) =>
+                dispatch({
+                  type: 'color',
+                  section: section.id,
+                  color: value as ColorId,
+                })
+              }
+              aria-label={`${section.label} color`}
+              className="color-options"
+            >
+              {PALETTE.map((color) => (
+                <RadioGroupItem
+                  key={color.id}
+                  value={color.id}
+                  aria-label={color.label}
+                  title={color.label}
+                  style={{ '--swatch': color.hex } as React.CSSProperties}
+                  className="color-option"
+                />
+              ))}
+            </RadioGroup>
+          </>
+        )}
       </div>
     </section>
   );
@@ -166,7 +191,7 @@ function WardrobeSection({
 
 export function App() {
   const [outfit, dispatch] = useReducer(
-    outfitReducer,
+    (state: Outfit, action: Action) => outfitReducer(state, action),
     undefined,
     initialOutfit,
   );
@@ -177,7 +202,9 @@ export function App() {
   const sections = useRef<HTMLDivElement>(null);
   const [mobileSection, setMobileSection] = useState<SectionId>('shirt');
   const visibleCount = SECTIONS.filter(
-    (section) => outfit.layers[section.id].visible,
+    (section) =>
+      outfit.layers[section.id].visible &&
+      isItemReady(outfit.layers[section.id].item),
   ).length;
   useEffect(() => {
     let active = true;
@@ -278,10 +305,17 @@ export function App() {
           <div className="outfit-footer">
             <span className="layers-caption">
               {visibleCount ? <Eye size={15} /> : <EyeOff size={15} />}
-              {visibleCount} of 6 layers shown
+              {visibleCount} of{' '}
+              {SECTIONS.filter((s) => s.items.some(isItemReady)).length} layers
+              shown
             </span>
             <div className="outfit-colors" aria-label="Visible outfit colors">
-              {SECTIONS.filter((s) => outfit.layers[s.id].visible).map((s) => (
+              {SECTIONS.filter(
+                (s) =>
+                  s.id !== 'watch' &&
+                  outfit.layers[s.id].visible &&
+                  isItemReady(outfit.layers[s.id].item),
+              ).map((s) => (
                 <span
                   key={s.id}
                   className="outfit-color"
@@ -300,7 +334,7 @@ export function App() {
         <aside className="wardrobe-panel" aria-label="Clothing controls">
           <div className="wardrobe-heading">
             <h2>Your wardrobe</h2>
-            <span className="item-count">9 pieces</span>
+            <span className="item-count">{readyItemIds().length} pieces</span>
           </div>
           <nav className="section-nav" aria-label="Clothing sections">
             {SECTIONS.map((s) => (

@@ -264,6 +264,7 @@ a:focus-visible {
 }
 .section-nav {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 6px;
   padding: 0 24px 17px;
@@ -329,6 +330,7 @@ a:focus-visible {
   text-align: right;
 }
 .wardrobe-switch[data-slot='switch'] {
+  --switch-offset: 0px;
   height: 20px;
   width: 34px;
   min-width: 34px;
@@ -348,12 +350,15 @@ a:focus-visible {
   width: 16px;
   background: #fff;
   box-shadow: 0 1px 3px #152c2420;
-  transform: translateX(0);
-  translate: 0 0;
-  transition: transform 0.16s;
+  flex-shrink: 0;
+  /* One translation replaces the primitive's checked-state movement. Keeping
+     it variable-based also prevents the CSS build from merging it into transform. */
+  transform: none;
+  translate: var(--switch-offset) 0;
+  transition: translate 0.16s;
 }
-.wardrobe-switch[data-slot='switch'][data-checked] [data-slot='switch-thumb'] {
-  transform: translateX(14px);
+.wardrobe-switch[data-slot='switch'][data-checked] {
+  --switch-offset: 14px;
 }
 .wardrobe-switch:focus-visible {
   outline: 2px solid #638e74;
@@ -371,9 +376,53 @@ a:focus-visible {
 }
 .clothing-options[data-slot='radio-group'] {
   display: flex;
+  flex-wrap: wrap;
   gap: 9px;
   width: auto;
   align-items: stretch;
+}
+.watch-options[data-slot='radio-group'] {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 9px;
+}
+.watch-options .clothing-choice {
+  width: 100%;
+  min-width: 0;
+  padding-inline: 4px;
+}
+.watch-options .choice-name {
+  white-space: normal;
+  text-align: center;
+}
+.jacket-options .choice-name {
+  white-space: normal;
+  text-align: center;
+  min-height: 2.8em;
+}
+.watch-options .clothing-thumbnail {
+  width: 100%;
+  max-width: 82px;
+}
+.pending-thumbnail {
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 51px;
+  max-width: 100%;
+  font-size: 0.75rem;
+  line-height: 1.35;
+  text-align: center;
+  color: #7d8680;
+}
+.clothing-choice.is-pending,
+.clothing-choice.is-pending:hover {
+  cursor: default;
+  background: #fafbfa;
+  border-color: #edf0ed;
+}
+.images-pending .section-content {
+  opacity: 1;
 }
 .clothing-choice {
   position: relative;
@@ -670,6 +719,8 @@ a:focus-visible {
   }
   .wardrobe-sections[data-mobile-section='shirt']
     .wardrobe-section:has(#shirt-heading),
+  .wardrobe-sections[data-mobile-section='sweater']
+    .wardrobe-section[data-section='sweater'],
   .wardrobe-sections[data-mobile-section='jacket']
     .wardrobe-section:has(#jacket-heading),
   .wardrobe-sections[data-mobile-section='belt']
@@ -679,7 +730,9 @@ a:focus-visible {
   .wardrobe-sections[data-mobile-section='shoes']
     .wardrobe-section:has(#shoes-heading),
   .wardrobe-sections[data-mobile-section='socks']
-    .wardrobe-section:has(#socks-heading) {
+    .wardrobe-section:has(#socks-heading),
+  .wardrobe-sections[data-mobile-section='watch']
+    .wardrobe-section[data-section='watch'] {
     display: block;
   }
   .color-options[data-slot='radio-group'] {

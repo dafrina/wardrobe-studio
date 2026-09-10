@@ -6,10 +6,13 @@
     "node": ">=22.13.0"
   },
   "scripts": {
+    "assets:sync": "node --experimental-strip-types scripts/sync-assets.ts",
+    "predev": "npm run assets:sync",
+    "prebuild": "npm run assets:sync",
     "dev": "vite --host 0.0.0.0",
     "build": "tsc --noEmit && vite build",
     "start": "vite preview --host 0.0.0.0",
-    "lint": "oxlint src vite.config.ts components/ui/switch.tsx components/ui/radio-group.tsx lib/utils.ts",
+    "lint": "oxlint src scripts vite.config.ts components/ui/switch.tsx components/ui/radio-group.tsx lib/utils.ts",
     "format": "oxfmt",
     "test": "node --experimental-strip-types --test src/wardrobe.test.ts"
   },
