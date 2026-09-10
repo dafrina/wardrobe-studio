@@ -7,6 +7,7 @@ A React + Vite dress-up app using the approved mannequin and clothing assets. Ru
 - Eight sections with independent show/hide switches and clothing thumbnails. Clothes have fourteen colors; watches retain their model's original colors.
 - Polo or shirt, troyer or crew-neck sweater, five outerwear choices, leather belt, four trouser choices, loafers or sneakers, low or sport socks, and eight watch models. Outerwear includes the Harrington, lightweight and cotton Polo jackets, a below-knee Burberry coat, and a diamond-quilted jacket. Trousers include ankle-length and full-length business cuts, regular linen, and subtle checks.
 - Tuck in shirt changes the drawing order at the waistband. Hidden sections retain their selected item and color. Reset restores the reference outfit.
+- Save the current outfit with a label, then load or delete saved fits. Saved fits are kept in this browser's localStorage and are limited to 30 entries.
 - Desktop controls scroll beside the mannequin; mobile uses the section tabs.
 
 ## Assets and rendering
@@ -41,7 +42,7 @@ Watch IDs: `watch-rectangular-brown`, `watch-two-tone`, `watch-green-steel`, `wa
 
 ## Validation
 
-- `npm test`: 40 real-image and state checks for garment layering, open jacket fronts, neck openings, shirt collars and sleeve edges, coat length and hand cutouts, trouser registration, ankle coverage, fixed-color watches, wrist contact, cuff occlusion, reference colors, type selection, and visibility state. All current assets are tested with their actual production images.
+- `npm test`: 42 real-image and state checks for garment layering, open jacket fronts, neck openings, shirt collars and sleeve edges, coat length and hand cutouts, trouser registration, ankle coverage, fixed-color watches, wrist contact, cuff occlusion, reference colors, type selection, visibility state, and saved-fit serialization. All current assets are tested with their actual production images.
 - `npm run lint`: app code and the UI primitives it uses.
 - `npm run build`: TypeScript validation and the production Vite build in `dist`.
 - `node --experimental-strip-types scripts/render-review.ts`: exports outfit, collar, watch, new outerwear, and light/dark check-pattern contact sheets to the sibling `puppet-assets-v8/review` directory.
@@ -54,7 +55,7 @@ The final shirt and polo cleanup is in `puppet-assets-v7/collars`, including the
 
 The five additions from `Ggg.zip` are preserved in `puppet-assets-v8`: original reference images, five built-in image-generation masters and final prompts, `process-assets.cjs` for chroma extraction/registration and mask/shading separation, and actual-renderer review sheets. The check trousers reuse the approved full-length silhouette and waistband; the pattern is registered into that shape. See that directory's README for the source-to-item mapping.
 
-The app runs entirely in the browser. Clothing selections last for the current session; no account data or outfit data is stored on a server.
+The app runs entirely in the browser. Clothing selections last for the current session, while labeled saved fits persist in localStorage on this device. No account data or outfit data is stored on a server.
 
 ## GitHub Pages
 

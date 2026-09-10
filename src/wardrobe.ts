@@ -183,6 +183,22 @@ export type Outfit = {
   tucked: boolean;
   layers: Record<SectionId, LayerChoice>;
 };
+export type SavedFit = {
+  id: string;
+  label: string;
+  outfit: Outfit;
+  savedAt: number;
+};
+export const SAVED_FITS_KEY = 'wardrobe-studio:saved-fits';
+export const MAX_SAVED_FITS = 30;
+
+export const cloneOutfit = (outfit: Outfit): Outfit => ({
+  tucked: outfit.tucked,
+  layers: Object.fromEntries(
+    SECTIONS.map(({ id }) => [id, { ...outfit.layers[id] }]),
+  ) as Outfit['layers'],
+});
+
 export const initialOutfit = (): Outfit => ({
   tucked: true,
   layers: {
@@ -203,6 +219,7 @@ export type Action =
   | { type: 'item'; section: SectionId; item: ItemId }
   | { type: 'color'; section: SectionId; color: ColorId }
   | { type: 'tuck'; tucked: boolean }
+  | { type: 'load'; outfit: Outfit }
   | { type: 'reset' };
 
 export function outfitReducer(
@@ -211,6 +228,7 @@ export function outfitReducer(
   available: (id: ItemId) => boolean = isItemReady,
 ): Outfit {
   if (action.type === 'reset') return initialOutfit();
+  if (action.type === 'load') return cloneOutfit(action.outfit);
   if (action.type === 'tuck') return { ...state, tucked: action.tucked };
   const choice = state.layers[action.section];
   if (action.type === 'visibility' && action.visible && !available(choice.item))
@@ -242,6 +260,56 @@ export function outfitReducer(
           }
         : { ...choice, color: action.color };
   return { ...state, layers: { ...state.layers, [action.section]: changed } };
+}
+
+function isSavedFit(value: unknown): value is SavedFit {
+  if (!value || typeof value !== 'object') return false;
+  const candidate = value as Partial<SavedFit>;
+  if (
+    typeof candidate.id !== 'string' ||
+    typeof candidate.label !== 'string' ||
+    typeof candidate.savedAt !== 'number' ||
+    !Number.isFinite(candidate.savedAt) ||
+    !candidate.outfit ||
+    typeof candidate.outfit !== 'object'
+  )
+    return false;
+  const outfit = candidate.outfit as Partial<Outfit>;
+  if (typeof outfit.tucked !== 'boolean' || !outfit.layers) return false;
+  return SECTIONS.every((section) => {
+    const choice = outfit.layers?.[section.id];
+    return (
+      !!choice &&
+      typeof choice === 'object' &&
+      typeof choice.item === 'string' &&
+      section.items.includes(choice.item as ItemId) &&
+      typeof choice.color === 'string' &&
+      PALETTE.some((color) => color.id === choice.color) &&
+      typeof choice.visible === 'boolean'
+    );
+  });
+}
+
+export function parseSavedFits(value: string | null): SavedFit[] {
+  if (!value) return [];
+  try {
+    const parsed: unknown = JSON.parse(value);
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .filter(isSavedFit)
+      .slice(0, MAX_SAVED_FITS)
+      .map((fit) => ({
+        ...fit,
+        label: fit.label.trim() || 'Untitled fit',
+        outfit: cloneOutfit(fit.outfit),
+      }));
+  } catch {
+    return [];
+  }
+}
+
+export function serializeSavedFits(fits: SavedFit[]): string {
+  return JSON.stringify(fits.slice(0, MAX_SAVED_FITS));
 }
 
 export type DrawStep =

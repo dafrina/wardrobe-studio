@@ -11,14 +11,23 @@ import {
   SECTIONS,
   SIZE,
   WATCH_IDS,
+  cloneOutfit,
   isWatch,
   isItemReady,
   readyItemIds,
   initialOutfit,
   layerPlan,
   outfitReducer,
+  parseSavedFits,
+  serializeSavedFits,
 } from './wardrobe.ts';
-import type { ColorId, ItemId, Outfit, SectionId } from './wardrobe.ts';
+import type {
+  ColorId,
+  ItemId,
+  Outfit,
+  SavedFit,
+  SectionId,
+} from './wardrobe.ts';
 
 const factory = (w: number, h: number) =>
   createCanvas(w, h) as unknown as HTMLCanvasElement;
@@ -336,6 +345,40 @@ void test('visibility switches retain clothing type and color, and reset restore
     visible: true,
   });
   assert.deepEqual(outfitReducer(state, { type: 'reset' }), initialOutfit());
+});
+
+void test('saved fits round-trip labels and reject malformed storage', () => {
+  const saved: SavedFit = {
+    id: 'fit-1',
+    label: '  Office layers  ',
+    outfit: initialOutfit(),
+    savedAt: 123,
+  };
+  const parsed = parseSavedFits(serializeSavedFits([saved]));
+  assert.equal(parsed.length, 1);
+  assert.equal(parsed[0].label, 'Office layers');
+  assert.deepEqual(parsed[0].outfit, saved.outfit);
+  assert.deepEqual(parseSavedFits(null), []);
+  assert.deepEqual(parseSavedFits('{"not":"an array"}'), []);
+  assert.deepEqual(
+    parseSavedFits(JSON.stringify([{ id: 'missing-outfit', label: 'Nope' }])),
+    [],
+  );
+});
+
+void test('loading a saved fit replaces state without sharing layer objects', () => {
+  const original = initialOutfit();
+  const changed = outfitReducer(original, {
+    type: 'color',
+    section: 'shirt',
+    color: 'navy',
+  });
+  const loaded = outfitReducer(changed, {
+    type: 'load',
+    outfit: cloneOutfit(original),
+  });
+  assert.deepEqual(loaded, original);
+  assert.notEqual(loaded.layers.shirt, original.layers.shirt);
 });
 
 void test('garment selection cannot place a shoe in the shirt layer', () => {

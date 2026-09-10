@@ -98,6 +98,12 @@ a:focus-visible {
   font-weight: 400;
   color: #858d88;
 }
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.save-button,
 .reset-button {
   display: flex;
   align-items: center;
@@ -109,6 +115,15 @@ a:focus-visible {
   color: #626c66;
   font-size: 0.875rem;
   transition: background 0.15s;
+}
+.save-button {
+  border-color: #304a39;
+  background: #304a39;
+  color: #fff;
+}
+.save-button:hover {
+  background: #253c2d;
+  border-color: #253c2d;
 }
 .reset-button:hover {
   background: #f5f7f5;
@@ -289,6 +304,149 @@ a:focus-visible {
 .section-nav button.active {
   color: #304a39;
   background: #edf3ee;
+}
+.saved-fits {
+  padding: 14px 24px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.saved-fits-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.saved-fits-heading h3 {
+  margin: 0;
+  color: #4a554e;
+  font-size: 0.75rem;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.saved-fits-count {
+  color: #89948c;
+  font-size: 0.7rem;
+}
+.save-fit-inline {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 1px dashed #bfd0c3;
+  border-radius: 6px;
+  padding: 7px 10px;
+  background: #fbfdfb;
+  color: #3c6048;
+  font-size: 0.78rem;
+}
+.save-fit-inline:hover {
+  background: #f1f6f2;
+  border-color: #91ae99;
+}
+.save-fit-form label {
+  display: block;
+  margin-bottom: 5px;
+  color: #7a867d;
+  font-size: 0.72rem;
+}
+.save-fit-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.save-fit-input {
+  min-width: 0;
+  flex: 1;
+  height: 31px;
+  border: 1px solid #dbe4dd;
+  border-radius: 5px;
+  padding: 0 9px;
+  background: #fff;
+  color: #2f3d34;
+  font-size: 0.78rem;
+  outline: none;
+}
+.save-fit-input:focus {
+  border-color: #71937a;
+  box-shadow: 0 0 0 2px #71937a22;
+}
+.saved-fit-save,
+.saved-fit-cancel {
+  height: 31px;
+  border-radius: 5px;
+  padding: 0 9px;
+  font-size: 0.75rem;
+}
+.saved-fit-save {
+  border: 1px solid #304a39;
+  background: #304a39;
+  color: #fff;
+}
+.saved-fit-save:hover {
+  background: #253c2d;
+}
+.saved-fit-cancel {
+  border: 1px solid #e0e7e1;
+  background: #fff;
+  color: #78847b;
+}
+.saved-fit-cancel:hover {
+  background: #f5f8f5;
+  color: #435248;
+}
+.saved-fit-list {
+  display: grid;
+  gap: 5px;
+  list-style: none;
+  padding: 0;
+  margin: 9px 0 0;
+}
+.saved-fit-item {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  border: 1px solid #edf1ed;
+  border-radius: 6px;
+  background: #f9fbf9;
+}
+.saved-fit-load {
+  min-width: 0;
+  flex: 1;
+  border: 0;
+  padding: 7px 9px;
+  overflow: hidden;
+  background: transparent;
+  color: #4c5b50;
+  font-size: 0.78rem;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.saved-fit-load:hover {
+  color: #294a34;
+}
+.saved-fit-delete {
+  display: grid;
+  place-items: center;
+  width: 29px;
+  height: 29px;
+  flex-shrink: 0;
+  border: 0;
+  border-left: 1px solid #edf1ed;
+  background: transparent;
+  color: #9aa39d;
+}
+.saved-fit-delete:hover {
+  color: #a14d4d;
+  background: #fff7f7;
+}
+.saved-fit-empty {
+  margin: 9px 0 0;
+  color: #929c95;
+  font-size: 0.75rem;
 }
 .wardrobe-sections {
   overflow-y: auto;
@@ -646,6 +804,10 @@ a:focus-visible {
   .brand-light {
     display: none;
   }
+  .header-actions {
+    gap: 5px;
+  }
+  .save-button,
   .reset-button {
     padding: 8px 10px;
     font-size: 0.8125rem;
@@ -708,6 +870,9 @@ a:focus-visible {
   .section-nav button {
     font-size: 0.8125rem;
     padding: 7px 8px;
+  }
+  .saved-fits {
+    padding: 13px 18px 15px;
   }
   .wardrobe-sections {
     overflow: visible;
@@ -774,6 +939,14 @@ a:focus-visible {
   }
   .app-header {
     padding-inline: 16px;
+  }
+  .save-button span,
+  .reset-button span {
+    display: none;
+  }
+  .save-button,
+  .reset-button {
+    padding: 8px;
   }
   .outfit-panel {
     height: 42dvh;

@@ -1,11 +1,13 @@
 import { useEffect, useReducer, useRef, useState } from 'react';
 import {
+  BookmarkPlus,
   Check,
   RotateCcw,
   Shirt as ShirtIcon,
   ArrowDownToLine,
   Eye,
   EyeOff,
+  Trash2,
 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -14,14 +16,26 @@ import {
   PALETTE,
   SECTIONS,
   VIEW,
+  cloneOutfit,
   describeOutfit,
   getColor,
   initialOutfit,
   isItemReady,
+  MAX_SAVED_FITS,
+  parseSavedFits,
   readyItemIds,
+  SAVED_FITS_KEY,
+  serializeSavedFits,
   outfitReducer,
 } from './wardrobe';
-import type { Action, ColorId, ItemId, Outfit, SectionId } from './wardrobe';
+import type {
+  Action,
+  ColorId,
+  ItemId,
+  Outfit,
+  SavedFit,
+  SectionId,
+} from './wardrobe';
 import { loadWardrobe, WardrobeRenderer } from './renderer';
 
 function ClothingThumbnail({
@@ -198,6 +212,16 @@ export function App() {
   const [renderer, setRenderer] = useState<WardrobeRenderer | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
+  const [savedFits, setSavedFits] = useState<SavedFit[]>(() => {
+    if (typeof window === 'undefined') return [];
+    try {
+      return parseSavedFits(window.localStorage.getItem(SAVED_FITS_KEY));
+    } catch {
+      return [];
+    }
+  });
+  const [saveLabel, setSaveLabel] = useState('');
+  const [saveFormOpen, setSaveFormOpen] = useState(false);
   const canvas = useRef<HTMLCanvasElement>(null);
   const sections = useRef<HTMLDivElement>(null);
   const [mobileSection, setMobileSection] = useState<SectionId>('shirt');
@@ -227,6 +251,41 @@ export function App() {
   useEffect(() => {
     if (renderer && canvas.current) renderer.paint(canvas.current, outfit);
   }, [outfit, renderer]);
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(
+        SAVED_FITS_KEY,
+        serializeSavedFits(savedFits),
+      );
+    } catch {
+      // Private browsing and storage quotas can make localStorage unavailable.
+    }
+  }, [savedFits]);
+  function createSavedFitId() {
+    if (
+      typeof crypto !== 'undefined' &&
+      typeof crypto.randomUUID === 'function'
+    )
+      return crypto.randomUUID();
+    return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  }
+  function saveCurrentFit(event: Pick<Event, 'preventDefault'>) {
+    event.preventDefault();
+    const label = saveLabel.trim() || 'Untitled fit';
+    setSavedFits((current) =>
+      [
+        {
+          id: createSavedFitId(),
+          label,
+          outfit: cloneOutfit(outfit),
+          savedAt: Date.now(),
+        },
+        ...current,
+      ].slice(0, MAX_SAVED_FITS),
+    );
+    setSaveLabel('');
+    setSaveFormOpen(false);
+  }
   function selectSection(id: SectionId) {
     setMobileSection(id);
     const target = document.getElementById(`${id}-heading`);
@@ -254,14 +313,27 @@ export function App() {
             Wardrobe<span className="brand-light"> Studio</span>
           </span>
         </a>
-        <button
-          className="reset-button"
-          onClick={() => dispatch({ type: 'reset' })}
-          title="Restore the original outfit"
-        >
-          <RotateCcw size={15} strokeWidth={1.7} />
-          <span>Reset outfit</span>
-        </button>
+        <div className="header-actions">
+          <button
+            className="save-button"
+            onClick={() => {
+              setSaveLabel('');
+              setSaveFormOpen(true);
+            }}
+            title="Save the current outfit"
+          >
+            <BookmarkPlus size={15} strokeWidth={1.7} />
+            <span>Save fit</span>
+          </button>
+          <button
+            className="reset-button"
+            onClick={() => dispatch({ type: 'reset' })}
+            title="Restore the original outfit"
+          >
+            <RotateCcw size={15} strokeWidth={1.7} />
+            <span>Reset outfit</span>
+          </button>
+        </div>
       </header>
       <main className="workspace">
         <section className="outfit-panel" aria-label="Outfit preview">
@@ -352,6 +424,87 @@ export function App() {
               </button>
             ))}
           </nav>
+          <section className="saved-fits" aria-labelledby="saved-fits-heading">
+            <div className="saved-fits-heading">
+              <h3 id="saved-fits-heading">Saved fits</h3>
+              <span className="saved-fits-count">
+                {savedFits.length}/{MAX_SAVED_FITS}
+              </span>
+            </div>
+            {saveFormOpen ? (
+              <form className="save-fit-form" onSubmit={saveCurrentFit}>
+                <label htmlFor="fit-label">Fit label</label>
+                <div className="save-fit-row">
+                  <input
+                    id="fit-label"
+                    className="save-fit-input"
+                    value={saveLabel}
+                    onChange={(event) => setSaveLabel(event.target.value)}
+                    maxLength={60}
+                    placeholder="e.g. Friday office"
+                  />
+                  <button className="saved-fit-save" type="submit">
+                    Save
+                  </button>
+                  <button
+                    className="saved-fit-cancel"
+                    type="button"
+                    onClick={() => {
+                      setSaveLabel('');
+                      setSaveFormOpen(false);
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <button
+                className="save-fit-inline"
+                type="button"
+                onClick={() => {
+                  setSaveLabel('');
+                  setSaveFormOpen(true);
+                }}
+              >
+                <BookmarkPlus size={14} strokeWidth={1.7} />
+                Save current outfit
+              </button>
+            )}
+            {savedFits.length ? (
+              <ul className="saved-fit-list" aria-label="Saved fits">
+                {savedFits.map((fit) => (
+                  <li className="saved-fit-item" key={fit.id}>
+                    <button
+                      className="saved-fit-load"
+                      type="button"
+                      onClick={() =>
+                        dispatch({ type: 'load', outfit: fit.outfit })
+                      }
+                      title={`Load ${fit.label}`}
+                    >
+                      {fit.label}
+                    </button>
+                    <button
+                      className="saved-fit-delete"
+                      type="button"
+                      onClick={() =>
+                        setSavedFits((current) =>
+                          current.filter((saved) => saved.id !== fit.id),
+                        )
+                      }
+                      aria-label={`Delete ${fit.label}`}
+                      title={`Delete ${fit.label}`}
+                    >
+                      <Trash2 size={14} strokeWidth={1.7} />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="saved-fit-empty">No saved fits yet.</p>
+            )}
+          </section>
           <div
             className="wardrobe-sections"
             ref={sections}
